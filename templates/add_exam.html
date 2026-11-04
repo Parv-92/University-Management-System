@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Examination - University Management System{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    <!-- Breadcrumb -->
+    <nav class="form-breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('examinations') }}" class="breadcrumb-link">Examinations</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{% if is_edit %}Edit{% else %}Add{% endif %} Examination</span>
+    </nav>
+
+    {% if form_error %}
+    <div class="alert-banner alert-danger" role="alert" style="margin-bottom: 1.25rem;">
+        <div class="alert-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="alert-content">
+            <span class="alert-message">{{ form_error }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <div class="form-header">
+            <h2 class="form-title">{% if is_edit %}Edit{% else %}Schedule{% endif %} Examination Record</h2>
+            <p class="form-subtitle">{% if is_edit %}Update existing scheduled examination event, venue, and course details{% else %}Create a scheduled exam event linked to a specific course and classroom venue{% endif %}</p>
+        </div>
+
+        <form action="{{ action_url or url_for('add_exam') }}" method="POST" id="form-add-exam" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-body">
+                <div class="form-grid">
+                    <!-- EXAM_ID (Primary Key) -->
+                    <div class="form-group">
+                        <label for="input-exam-id" class="form-label">
+                            Exam ID <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="exam_id" 
+                            id="input-exam-id" 
+                            class="form-control {% if errors.exam_id %}is-invalid{% endif %}" 
+                            value="{{ form_data.exam_id or suggested_id }}" 
+                            required 
+                            min="1"
+                            {% if is_edit %}readonly style="background-color: var(--bg-subtle); cursor: not-allowed;"{% endif %}
+                        >
+                        <span class="form-hint">
+                            {% if is_edit %}
+                            <strong style="color: var(--blue-primary);">Primary Key (Immutable)</strong>
+                            {% else %}
+                            Unique numeric identifier for the exam event.
+                            {% endif %}
+                        </span>
+                        {% if errors.exam_id %}
+                        <div class="field-error">{{ errors.exam_id }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- EXAM_DATE -->
+                    <div class="form-group">
+                        <label for="input-exam-date" class="form-label">
+                            Exam Date <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            name="exam_date" 
+                            id="input-exam-date" 
+                            class="form-control {% if errors.exam_date %}is-invalid{% endif %}" 
+                            value="{{ form_data.exam_date or '' }}" 
+                            required
+                        >
+                        <span class="form-hint">Required format: YYYY-MM-DD.</span>
+                        {% if errors.exam_date %}
+                        <div class="field-error">{{ errors.exam_date }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- EXAM_NAME -->
+                    <div class="form-group form-grid-full">
+                        <label for="input-exam-name" class="form-label">
+                            Exam Name / Assessment Title <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="exam_name" 
+                            id="input-exam-name" 
+                            class="form-control {% if errors.exam_name %}is-invalid{% endif %}" 
+                            value="{{ form_data.exam_name or '' }}" 
+                            placeholder="e.g. Mid Term, Final Exam, Quiz 1, Practical Assessment" 
+                            required 
+                            maxlength="100"
+                        >
+                        {% if errors.exam_name %}
+                        <div class="field-error">{{ errors.exam_name }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Course (FK) -->
+                    <div class="form-group">
+                        <label for="select-course-id" class="form-label">
+                            Tested Course
+                        </label>
+                        <select 
+                            name="course_id" 
+                            id="select-course-id" 
+                            class="form-select-input {% if errors.course_id %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Course (Optional) --</option>
+                            {% for c in dropdown_courses %}
+                            <option value="{{ c.COURSE_ID }}" {% if form_data.course_id == (c.COURSE_ID|string) %}selected{% endif %}>
+                                {{ c.COURSE_ID }} - {{ c.COURSE_NAME }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.course_id %}
+                        <div class="field-error">{{ errors.course_id }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Classroom (FK) -->
+                    <div class="form-group">
+                        <label for="select-room-no" class="form-label">
+                            Exam Venue (Classroom)
+                        </label>
+                        <select 
+                            name="room_no" 
+                            id="select-room-no" 
+                            class="form-select-input {% if errors.room_no %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Classroom (Optional) --</option>
+                            {% for cl in dropdown_classrooms %}
+                            <option value="{{ cl.ROOM_NO }}" {% if form_data.room_no == (cl.ROOM_NO|string) %}selected{% endif %}>
+                                Room {{ cl.ROOM_NO }} (Capacity: {{ cl.CAPACITY }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.room_no %}
+                        <div class="field-error">{{ errors.room_no }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('examinations') }}" class="btn btn-secondary" id="btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="btn-submit">{% if is_edit %}Update{% else %}Save{% endif %} Examination</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-add-exam').addEventListener('submit', function() {
+    var btn = document.getElementById('btn-submit');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+    }
+});
+</script>
+{% endblock %}

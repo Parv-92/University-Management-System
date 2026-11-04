@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Course - University Management System{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    <!-- Breadcrumb -->
+    <nav class="form-breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('courses') }}" class="breadcrumb-link">Courses</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{% if is_edit %}Edit{% else %}Add{% endif %} Course</span>
+    </nav>
+
+    {% if form_error %}
+    <div class="alert-banner alert-danger" role="alert" style="margin-bottom: 1.25rem;">
+        <div class="alert-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="alert-content">
+            <span class="alert-message">{{ form_error }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <div class="form-header">
+            <h2 class="form-title">{% if is_edit %}Edit{% else %}Add{% endif %} Course Record</h2>
+            <p class="form-subtitle">{% if is_edit %}Update existing curriculum course, credit weight, department, and instructor{% else %}Register a new curriculum course, credit weight, department, and assigned instructor{% endif %}</p>
+        </div>
+
+        <form action="{{ action_url or url_for('add_course') }}" method="POST" id="form-add-course" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-body">
+                <div class="form-grid">
+                    <!-- COURSE_ID (Primary Key) -->
+                    <div class="form-group">
+                        <label for="input-course-id" class="form-label">
+                            Course ID <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="course_id" 
+                            id="input-course-id" 
+                            class="form-control {% if errors.course_id %}is-invalid{% endif %}" 
+                            value="{{ form_data.course_id or suggested_id }}" 
+                            required 
+                            min="1"
+                            {% if is_edit %}readonly style="background-color: var(--bg-subtle); cursor: not-allowed;"{% endif %}
+                        >
+                        <span class="form-hint">
+                            {% if is_edit %}
+                            <strong style="color: var(--blue-primary);">Primary Key (Immutable)</strong>
+                            {% else %}
+                            Unique numeric identifier for the course.
+                            {% endif %}
+                        </span>
+                        {% if errors.course_id %}
+                        <div class="field-error">{{ errors.course_id }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- CREDITS -->
+                    <div class="form-group">
+                        <label for="input-credits" class="form-label">
+                            Credits (1–6) <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="credits" 
+                            id="input-credits" 
+                            class="form-control {% if errors.credits %}is-invalid{% endif %}" 
+                            value="{{ form_data.credits or '3' }}" 
+                            required 
+                            min="1" 
+                            max="10"
+                        >
+                        {% if errors.credits %}
+                        <div class="field-error">{{ errors.credits }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- COURSE_NAME -->
+                    <div class="form-group form-grid-full">
+                        <label for="input-course-name" class="form-label">
+                            Course Name <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="course_name" 
+                            id="input-course-name" 
+                            class="form-control {% if errors.course_name %}is-invalid{% endif %}" 
+                            value="{{ form_data.course_name or '' }}" 
+                            placeholder="e.g. Distributed Database Architecture" 
+                            required 
+                            maxlength="100"
+                        >
+                        {% if errors.course_name %}
+                        <div class="field-error">{{ errors.course_name }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Department (FK) -->
+                    <div class="form-group">
+                        <label for="select-dept-id" class="form-label">
+                            Offering Department
+                        </label>
+                        <select 
+                            name="dept_id" 
+                            id="select-dept-id" 
+                            class="form-select-input {% if errors.dept_id %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Department (Optional) --</option>
+                            {% for d in dropdown_departments %}
+                            <option value="{{ d.DEPT_ID }}" {% if form_data.dept_id == (d.DEPT_ID|string) %}selected{% endif %}>
+                                {{ d.DEPT_ID }} - {{ d.DEPT_NAME }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.dept_id %}
+                        <div class="field-error">{{ errors.dept_id }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Faculty Instructor (FK) -->
+                    <div class="form-group">
+                        <label for="select-fid" class="form-label">
+                            Course Instructor (Faculty)
+                        </label>
+                        <select 
+                            name="fid" 
+                            id="select-fid" 
+                            class="form-select-input {% if errors.fid %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Faculty Instructor (Optional) --</option>
+                            {% for f in dropdown_faculty %}
+                            <option value="{{ f.FID }}" {% if form_data.fid == (f.FID|string) %}selected{% endif %}>
+                                {{ f.FID }} - {{ f.FNAME }} ({{ f.DESIGNATION or 'Faculty' }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.fid %}
+                        <div class="field-error">{{ errors.fid }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('courses') }}" class="btn btn-secondary" id="btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="btn-submit">{% if is_edit %}Update{% else %}Save{% endif %} Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-add-course').addEventListener('submit', function() {
+    var btn = document.getElementById('btn-submit');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+    }
+});
+</script>
+{% endblock %}

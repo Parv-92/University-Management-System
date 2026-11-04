@@ -1,0 +1,65 @@
+# ====================================================================
+# Git Ignore Configuration - University Management System
+# ====================================================================
+
+# 1. Environment and Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+
+# 2. Python Virtual Environments and Caches
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 3. Development, IDE & Editor Settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+tempCodeRunnerFile.*
+*.exe
+
+# 4. OS-Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 5. Demonstration Reports, Exports & Academic Submission Artifacts
+report/
+scratch/
+cam5-guidelines.pdf
+run.txt
+scripts/capture_screenshots.py
+scripts/generate_docx_report.py
+*.docx
+*.xlsx
+*.csv.bak
+
+# 6. Test Outputs & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.log

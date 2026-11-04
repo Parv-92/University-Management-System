@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Faculty Member - University Management System{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    <!-- Breadcrumb -->
+    <nav class="form-breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('faculty') }}" class="breadcrumb-link">Faculty Directory</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{% if is_edit %}Edit{% else %}Add{% endif %} Faculty Member</span>
+    </nav>
+
+    {% if form_error %}
+    <div class="alert-banner alert-danger" role="alert" style="margin-bottom: 1.25rem;">
+        <div class="alert-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="alert-content">
+            <span class="alert-message">{{ form_error }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <div class="form-header">
+            <h2 class="form-title">{% if is_edit %}Edit{% else %}Add{% endif %} Faculty Record</h2>
+            <p class="form-subtitle">{% if is_edit %}Update existing faculty instructor details, designation, and compensation{% else %}Register a new faculty instructor and assign department and compensation{% endif %}</p>
+        </div>
+
+        <form action="{{ action_url or url_for('add_faculty') }}" method="POST" id="form-add-faculty" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-body">
+                <div class="form-grid">
+                    <!-- FID (Primary Key) -->
+                    <div class="form-group">
+                        <label for="input-fid" class="form-label">
+                            Faculty ID (FID) <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="fid" 
+                            id="input-fid" 
+                            class="form-control {% if errors.fid %}is-invalid{% endif %}" 
+                            value="{{ form_data.fid or suggested_id }}" 
+                            required 
+                            min="1"
+                            {% if is_edit %}readonly style="background-color: var(--bg-subtle); cursor: not-allowed;"{% endif %}
+                        >
+                        <span class="form-hint">
+                            {% if is_edit %}
+                            <strong style="color: var(--blue-primary);">Primary Key (Immutable)</strong>
+                            {% else %}
+                            Unique numeric identifier for the faculty member.
+                            {% endif %}
+                        </span>
+                        {% if errors.fid %}
+                        <div class="field-error">{{ errors.fid }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- FNAME -->
+                    <div class="form-group">
+                        <label for="input-fname" class="form-label">
+                            Full Name <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="fname" 
+                            id="input-fname" 
+                            class="form-control {% if errors.fname %}is-invalid{% endif %}" 
+                            value="{{ form_data.fname or '' }}" 
+                            placeholder="e.g. Dr. Rajesh Sundaram" 
+                            required 
+                            maxlength="100"
+                        >
+                        {% if errors.fname %}
+                        <div class="field-error">{{ errors.fname }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Designation -->
+                    <div class="form-group">
+                        <label for="select-designation" class="form-label">
+                            Academic Designation
+                        </label>
+                        <select 
+                            name="designation" 
+                            id="select-designation" 
+                            class="form-select-input {% if errors.designation %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Designation --</option>
+                            <option value="Professor" {% if form_data.designation == 'Professor' %}selected{% endif %}>Professor</option>
+                            <option value="Associate Professor" {% if form_data.designation == 'Associate Professor' %}selected{% endif %}>Associate Professor</option>
+                            <option value="Assistant Professor" {% if form_data.designation == 'Assistant Professor' %}selected{% endif %}>Assistant Professor</option>
+                            <option value="Lecturer" {% if form_data.designation == 'Lecturer' %}selected{% endif %}>Lecturer</option>
+                            <option value="Visiting Faculty" {% if form_data.designation == 'Visiting Faculty' %}selected{% endif %}>Visiting Faculty</option>
+                        </select>
+                        {% if errors.designation %}
+                        <div class="field-error">{{ errors.designation }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Salary -->
+                    <div class="form-group">
+                        <label for="input-salary" class="form-label">
+                            Monthly Salary (₹) <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="salary" 
+                            id="input-salary" 
+                            class="form-control {% if errors.salary %}is-invalid{% endif %}" 
+                            value="{{ form_data.salary or '' }}" 
+                            placeholder="e.g. 110000" 
+                            required 
+                            min="1" 
+                            step="any"
+                        >
+                        <span class="form-hint">Must be greater than 0 (salary &gt; 0 check constraint).</span>
+                        {% if errors.salary %}
+                        <div class="field-error">{{ errors.salary }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Department (FK) -->
+                    <div class="form-group form-grid-full">
+                        <label for="select-dept-id" class="form-label">
+                            Department
+                        </label>
+                        <select 
+                            name="dept_id" 
+                            id="select-dept-id" 
+                            class="form-select-input {% if errors.dept_id %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Department (Optional) --</option>
+                            {% for d in dropdown_departments %}
+                            <option value="{{ d.DEPT_ID }}" {% if form_data.dept_id == (d.DEPT_ID|string) %}selected{% endif %}>
+                                {{ d.DEPT_ID }} - {{ d.DEPT_NAME }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.dept_id %}
+                        <div class="field-error">{{ errors.dept_id }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('faculty') }}" class="btn btn-secondary" id="btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="btn-submit">{% if is_edit %}Update{% else %}Save{% endif %} Faculty Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-add-faculty').addEventListener('submit', function() {
+    var btn = document.getElementById('btn-submit');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+    }
+});
+</script>
+{% endblock %}

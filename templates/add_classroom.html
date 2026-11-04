@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Classroom - University Management System{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    <!-- Breadcrumb -->
+    <nav class="form-breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('classrooms') }}" class="breadcrumb-link">Classrooms</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{% if is_edit %}Edit{% else %}Add{% endif %} Classroom</span>
+    </nav>
+
+    {% if form_error %}
+    <div class="alert-banner alert-danger" role="alert" style="margin-bottom: 1.25rem;">
+        <div class="alert-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="alert-content">
+            <span class="alert-message">{{ form_error }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <div class="form-header">
+            <h2 class="form-title">{% if is_edit %}Edit{% else %}Add{% endif %} Classroom Record</h2>
+            <p class="form-subtitle">{% if is_edit %}Update existing lecture hall or laboratory seating capacity and department assignment{% else %}Register a physical lecture hall or laboratory with its seating capacity and department{% endif %}</p>
+        </div>
+
+        <form action="{{ action_url or url_for('add_classroom') }}" method="POST" id="form-add-classroom" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-body">
+                <div class="form-grid">
+                    <!-- ROOM_NO (Primary Key) -->
+                    <div class="form-group">
+                        <label for="input-room-no" class="form-label">
+                            Room Number <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="room_no" 
+                            id="input-room-no" 
+                            class="form-control {% if errors.room_no %}is-invalid{% endif %}" 
+                            value="{{ form_data.room_no or suggested_id }}" 
+                            required 
+                            min="1"
+                            {% if is_edit %}readonly style="background-color: var(--bg-subtle); cursor: not-allowed;"{% endif %}
+                        >
+                        <span class="form-hint">
+                            {% if is_edit %}
+                            <strong style="color: var(--blue-primary);">Primary Key (Immutable)</strong>
+                            {% else %}
+                            Unique room identifier (e.g. 526).
+                            {% endif %}
+                        </span>
+                        {% if errors.room_no %}
+                        <div class="field-error">{{ errors.room_no }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- CAPACITY -->
+                    <div class="form-group">
+                        <label for="input-capacity" class="form-label">
+                            Seating Capacity <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="capacity" 
+                            id="input-capacity" 
+                            class="form-control {% if errors.capacity %}is-invalid{% endif %}" 
+                            value="{{ form_data.capacity or '' }}" 
+                            placeholder="e.g. 60" 
+                            required 
+                            min="1"
+                        >
+                        <span class="form-hint">Must be greater than 0 (capacity &gt; 0 check constraint).</span>
+                        {% if errors.capacity %}
+                        <div class="field-error">{{ errors.capacity }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Department (FK) -->
+                    <div class="form-group form-grid-full">
+                        <label for="select-dept-id" class="form-label">
+                            Managing Department
+                        </label>
+                        <select 
+                            name="dept_id" 
+                            id="select-dept-id" 
+                            class="form-select-input {% if errors.dept_id %}is-invalid{% endif %}"
+                        >
+                            <option value="">-- Select Department (Optional) --</option>
+                            {% for d in dropdown_departments %}
+                            <option value="{{ d.DEPT_ID }}" {% if form_data.dept_id == (d.DEPT_ID|string) %}selected{% endif %}>
+                                {{ d.DEPT_ID }} - {{ d.DEPT_NAME }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.dept_id %}
+                        <div class="field-error">{{ errors.dept_id }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('classrooms') }}" class="btn btn-secondary" id="btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="btn-submit">{% if is_edit %}Update{% else %}Save{% endif %} Classroom</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-add-classroom').addEventListener('submit', function() {
+    var btn = document.getElementById('btn-submit');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+    }
+});
+</script>
+{% endblock %}

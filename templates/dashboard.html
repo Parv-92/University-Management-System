@@ -1,0 +1,1013 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - University Management System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Main Top Header -->
+    <header class="main-header">
+        <div class="header-titles">
+            <h1 class="page-title">University Analytics Dashboard</h1>
+            <p class="page-subtitle">Real-time Oracle Database 23ai telemetry, academic distributions, and institutional performance metrics</p>
+        </div>
+        <div class="header-status-pill">
+            <span class="status-dot"></span>
+            <span>Oracle 23ai Connected &bull; 10 Verified Tables</span>
+        </div>
+    </header>
+
+    <!-- Database Connection / Query Notice -->
+    {% if error_message %}
+    <div class="alert-banner alert-warning" role="alert" id="db-notice">
+        <div class="alert-icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="alert-body">
+            <h4 class="alert-title">Database Notification</h4>
+            <p class="alert-message">{{ error_message }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 10 Overview Metrics Cards Grid -->
+    <section class="dashboard-grid-10" aria-label="System Metrics Overview">
+        <!-- 1. University -->
+        <a href="{{ url_for('university') }}" class="summary-card card-link" id="dash-card-university" title="View University Records">
+            <div class="card-icon blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Universities</span>
+                <span class="card-value">{{ stats.TOTAL_UNIVERSITIES or 0 }}</span>
+                <span class="card-subtext">Table: UNIVERSITY1143</span>
+            </div>
+        </a>
+
+        <!-- 2. Departments -->
+        <a href="{{ url_for('departments') }}" class="summary-card card-link" id="dash-card-departments" title="View Department Records">
+            <div class="card-icon indigo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 21h18"></path>
+                    <path d="M5 21V7l8-4v18"></path>
+                    <path d="M19 21V11l-6-3"></path>
+                    <path d="M9 9h1"></path>
+                    <path d="M9 13h1"></path>
+                    <path d="M9 17h1"></path>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Departments</span>
+                <span class="card-value">{{ stats.TOTAL_DEPARTMENTS or 0 }}</span>
+                <span class="card-subtext">Table: DEPARTMENT1143</span>
+            </div>
+        </a>
+
+        <!-- 3. Faculty -->
+        <a href="{{ url_for('faculty') }}" class="summary-card card-link" id="dash-card-faculty" title="View Faculty Records">
+            <div class="card-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Faculty</span>
+                <span class="card-value">{{ stats.TOTAL_FACULTY or 0 }}</span>
+                <span class="card-subtext">Table: FACULTY1143</span>
+            </div>
+        </a>
+
+        <!-- 4. Students -->
+        <a href="{{ url_for('students') }}" class="summary-card card-link" id="dash-card-students" title="View Student Records">
+            <div class="card-icon blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Students</span>
+                <span class="card-value">{{ stats.TOTAL_STUDENTS or 0 }}</span>
+                <span class="card-subtext">Table: STUDENT1143</span>
+            </div>
+        </a>
+
+        <!-- 5. Courses -->
+        <a href="{{ url_for('courses') }}" class="summary-card card-link" id="dash-card-courses" title="View Course Records">
+            <div class="card-icon indigo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Courses</span>
+                <span class="card-value">{{ stats.TOTAL_COURSES or 0 }}</span>
+                <span class="card-subtext">Table: COURSE1143</span>
+            </div>
+        </a>
+
+        <!-- 6. Classrooms -->
+        <a href="{{ url_for('classrooms') }}" class="summary-card card-link" id="dash-card-classrooms" title="View Classroom Records">
+            <div class="card-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Classrooms</span>
+                <span class="card-value">{{ stats.TOTAL_CLASSROOMS or 0 }}</span>
+                <span class="card-subtext">Table: CLASSROOM1143</span>
+            </div>
+        </a>
+
+        <!-- 7. Examinations -->
+        <a href="{{ url_for('examinations') }}" class="summary-card card-link" id="dash-card-examinations" title="View Examination Records">
+            <div class="card-icon blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Examinations</span>
+                <span class="card-value">{{ stats.TOTAL_EXAMS or 0 }}</span>
+                <span class="card-subtext">Table: EXAM1143</span>
+            </div>
+        </a>
+
+        <!-- 8. Results -->
+        <a href="{{ url_for('results') }}" class="summary-card card-link" id="dash-card-results" title="View Results Records">
+            <div class="card-icon indigo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Results</span>
+                <span class="card-value">{{ stats.TOTAL_RESULTS or 0 }}</span>
+                <span class="card-subtext">Table: RESULT1143</span>
+            </div>
+        </a>
+
+        <!-- 9. Library -->
+        <a href="{{ url_for('library') }}" class="summary-card card-link" id="dash-card-library" title="View Library Records">
+            <div class="card-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Library Books</span>
+                <span class="card-value">{{ stats.TOTAL_BOOKS or 0 }}</span>
+                <span class="card-subtext">Table: LIBRARY1143</span>
+            </div>
+        </a>
+
+        <!-- 10. Hostel -->
+        <a href="{{ url_for('hostel') }}" class="summary-card card-link" id="dash-card-hostel" title="View Hostel Records">
+            <div class="card-icon blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Hostels</span>
+                <span class="card-value">{{ stats.TOTAL_HOSTELS or 0 }}</span>
+                <span class="card-subtext">Table: HOSTEL1143</span>
+            </div>
+        </a>
+    </section>
+
+    <!-- SECTION 1: Academic Distribution & Teaching Load -->
+    <div class="dashboard-section-header">
+        <h2 class="dashboard-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path d="M2 17l10 5 10-5"></path>
+                <path d="M2 12l10 5 10-5"></path>
+            </svg>
+            Academic Distribution & Teaching Scale
+        </h2>
+        <span class="dashboard-section-subtitle">Departmental student enrollment, faculty allocations, and curriculum capacity</span>
+    </div>
+
+    <section class="analytics-grid-2col">
+        <!-- Chart 1: Students by Department -->
+        <div class="chart-card" id="card-chart-students-dept">
+            <div class="chart-card-header">
+                <div class="chart-title-group">
+                    <h3 class="chart-title">Students by Department</h3>
+                    <span class="chart-desc">Student headcounts enrolled per academic department</span>
+                </div>
+                <span class="record-count-badge">{{ analytics.students_by_dept|length }} Departments</span>
+            </div>
+            <div class="chart-card-body">
+                {% if analytics.students_by_dept and analytics.students_by_dept|length > 0 %}
+                <div class="chart-canvas-box">
+                    <canvas id="chartStudentsDept"></canvas>
+                </div>
+                {% else %}
+                <div class="chart-empty-state">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>No student enrollment records found</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Chart 2: Faculty & Courses by Department -->
+        <div class="chart-card" id="card-chart-faculty-courses">
+            <div class="chart-card-header">
+                <div class="chart-title-group">
+                    <h3 class="chart-title">Faculty & Courses by Department</h3>
+                    <span class="chart-desc">Teaching staff headcount vs active curriculum courses offered</span>
+                </div>
+                <span class="record-count-badge">Curriculum & Staffing</span>
+            </div>
+            <div class="chart-card-body">
+                {% if analytics.faculty_by_dept and analytics.faculty_by_dept|length > 0 %}
+                <div class="chart-canvas-box">
+                    <canvas id="chartFacultyCourses"></canvas>
+                </div>
+                {% else %}
+                <div class="chart-empty-state">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>No faculty or course records available</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: Academic Performance & Examinations -->
+    <div class="dashboard-section-header">
+        <h2 class="dashboard-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            Academic Performance & Examination Density
+        </h2>
+        <span class="dashboard-section-subtitle">Evaluation grade distributions and course-wise examination scheduling</span>
+    </div>
+
+    <section class="analytics-grid-2col">
+        <!-- Chart 3: Result Grade Distribution -->
+        <div class="chart-card" id="card-chart-grade-dist">
+            <div class="chart-card-header">
+                <div class="chart-title-group">
+                    <h3 class="chart-title">Result Grade Distribution</h3>
+                    <span class="chart-desc">Academic assessment breakdown across grades S through F</span>
+                </div>
+                <span class="record-count-badge">{{ stats.TOTAL_RESULTS or 0 }} Results</span>
+            </div>
+            <div class="chart-card-body">
+                {% if analytics.grade_distribution and analytics.grade_distribution|length > 0 %}
+                <div class="chart-canvas-box" style="height: 230px;">
+                    <canvas id="chartGradeDist"></canvas>
+                </div>
+                <!-- Interactive Badge Breakdown -->
+                <div class="grade-legend-container">
+                    {% for g in analytics.grade_distribution %}
+                    <span class="grade-badge-item">
+                        <span class="grade-dot grade-{{ g.LABEL|lower }}"></span>
+                        <span>Grade {{ g.LABEL }}:</span>
+                        <strong>{{ g.VAL }}</strong>
+                    </span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="chart-empty-state">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>No examination results evaluated yet</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Chart 4: Top Examinations by Course -->
+        <div class="chart-card" id="card-chart-exams-course">
+            <div class="chart-card-header">
+                <div class="chart-title-group">
+                    <h3 class="chart-title">Examination Counts by Course</h3>
+                    <span class="chart-desc">Courses with the highest scheduled examination frequency</span>
+                </div>
+                <span class="record-count-badge">Top Examination Courses</span>
+            </div>
+            <div class="chart-card-body">
+                {% if analytics.exams_by_course and analytics.exams_by_course|length > 0 %}
+                <div class="chart-canvas-box">
+                    <canvas id="chartExamsCourse"></canvas>
+                </div>
+                {% else %}
+                <div class="chart-empty-state">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>No examination schedules registered</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: Campus Scope & Residential Capacity -->
+    <div class="dashboard-section-header">
+        <h2 class="dashboard-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 21h18"></path>
+                <path d="M5 21V7l8-4v18"></path>
+                <path d="M19 21V11l-6-3"></path>
+            </svg>
+            Campus Scope & Residential Facilities
+        </h2>
+        <span class="dashboard-section-subtitle">University-wise department affiliations and student residential capacity</span>
+    </div>
+
+    <section class="analytics-grid-2col">
+        <!-- Chart 5: University-wise Departments -->
+        <div class="chart-card" id="card-chart-dept-uni">
+            <div class="chart-card-header">
+                <div class="chart-title-group">
+                    <h3 class="chart-title">University-Wise Department Scope</h3>
+                    <span class="chart-desc">Number of academic departments hosted per university institution</span>
+                </div>
+                <span class="record-count-badge">{{ stats.TOTAL_UNIVERSITIES or 0 }} Campuses</span>
+            </div>
+            <div class="chart-card-body">
+                {% if analytics.dept_by_university and analytics.dept_by_university|length > 0 %}
+                <div class="chart-canvas-box">
+                    <canvas id="chartDeptUni"></canvas>
+                </div>
+                {% else %}
+                <div class="chart-empty-state">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>No university department mappings found</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Chart 6: Hostel Capacity by University -->
+        <div class="chart-card" id="card-chart-hostel-uni">
+            <div class="chart-card-header">
+                <div class="chart-title-group">
+                    <h3 class="chart-title">Hostel Bed Capacity by Campus</h3>
+                    <span class="chart-desc">Total resident bed accommodations provisioned per university</span>
+                </div>
+                <span class="record-count-badge">{{ analytics.hostel_summary.TOTAL_CAPACITY or 0 }} Total Beds</span>
+            </div>
+            <div class="chart-card-body">
+                {% if analytics.hostel_by_university and analytics.hostel_by_university|length > 0 %}
+                <div class="chart-canvas-box">
+                    <canvas id="chartHostelUni"></canvas>
+                </div>
+                {% else %}
+                <div class="chart-empty-state">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>No residential hostel records available</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: Facilities & Infrastructure Capacity Summaries -->
+    <div class="dashboard-section-header">
+        <h2 class="dashboard-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            Campus Physical Infrastructure Benchmarks
+        </h2>
+        <span class="dashboard-section-subtitle">Aggregate seating capacities, venue distributions, and residential scale</span>
+    </div>
+
+    <section class="facility-benchmarks-grid">
+        <!-- Classroom Infrastructure Card -->
+        <div class="facility-card" id="card-facility-classroom">
+            <div class="facility-card-header">
+                <h3 class="facility-title">Classrooms & Lecture Halls Capacity</h3>
+                <span class="record-count-badge">Table: CLASSROOM1143</span>
+            </div>
+            <div class="kpi-metrics-row">
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Total Rooms</span>
+                    <span class="kpi-tile-val">{{ analytics.classroom_summary.TOTAL_ROOMS or 0 }}</span>
+                    <span class="kpi-tile-sub">Active venues</span>
+                </div>
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Total Capacity</span>
+                    <span class="kpi-tile-val">{{ analytics.classroom_summary.TOTAL_CAPACITY or 0 }}</span>
+                    <span class="kpi-tile-sub">Aggregate student seats</span>
+                </div>
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Average Size</span>
+                    <span class="kpi-tile-val">{{ analytics.classroom_summary.AVG_CAPACITY or 0 }}</span>
+                    <span class="kpi-tile-sub">Seats per room</span>
+                </div>
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Capacity Range</span>
+                    <span class="kpi-tile-val">{{ analytics.classroom_summary.MIN_CAPACITY }}–{{ analytics.classroom_summary.MAX_CAPACITY }}</span>
+                    <span class="kpi-tile-sub">Min to max seats</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hostel Infrastructure Card -->
+        <div class="facility-card" id="card-facility-hostel">
+            <div class="facility-card-header">
+                <h3 class="facility-title">Hostels & Residential Halls Capacity</h3>
+                <span class="record-count-badge">Table: HOSTEL1143</span>
+            </div>
+            <div class="kpi-metrics-row">
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Total Hostels</span>
+                    <span class="kpi-tile-val">{{ analytics.hostel_summary.TOTAL_HOSTELS or 0 }}</span>
+                    <span class="kpi-tile-sub">Residential blocks</span>
+                </div>
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Total Capacity</span>
+                    <span class="kpi-tile-val">{{ analytics.hostel_summary.TOTAL_CAPACITY or 0 }}</span>
+                    <span class="kpi-tile-sub">Aggregate beds</span>
+                </div>
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Average Size</span>
+                    <span class="kpi-tile-val">{{ analytics.hostel_summary.AVG_CAPACITY or 0 }}</span>
+                    <span class="kpi-tile-sub">Beds per hostel</span>
+                </div>
+                <div class="kpi-tile">
+                    <span class="kpi-tile-label">Capacity Range</span>
+                    <span class="kpi-tile-val">{{ analytics.hostel_summary.MIN_CAPACITY }}–{{ analytics.hostel_summary.MAX_CAPACITY }}</span>
+                    <span class="kpi-tile-sub">Min to max beds</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: Database Schema Directory Table -->
+    <section class="table-section-card" aria-label="Database Tables Directory" style="margin-top: 0.5rem;">
+        <div class="table-section-header">
+            <div class="table-title-group">
+                <h2 class="table-title">Database Entities & Direct Action Directory</h2>
+                <span class="record-count-badge">10 Verified Oracle Tables</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="students-table" id="directory-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Entity Module</th>
+                        <th scope="col">Oracle Table Name</th>
+                        <th scope="col">Primary Identifier</th>
+                        <th scope="col">Total Records</th>
+                        <th scope="col">Key Relationships</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-row">
+                        <td><strong>University</strong></td>
+                        <td><code>UNIVERSITY1143</code></td>
+                        <td><span class="id-tag">UNID</span></td>
+                        <td><strong>{{ stats.TOTAL_UNIVERSITIES or 0 }}</strong></td>
+                        <td>Base Entity (Campus / Institution)</td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('university') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_university') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Departments</strong></td>
+                        <td><code>DEPARTMENT1143</code></td>
+                        <td><span class="id-tag">DEPT_ID</span></td>
+                        <td><strong>{{ stats.TOTAL_DEPARTMENTS or 0 }}</strong></td>
+                        <td>References <code>UNIVERSITY1143 (UNID)</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('departments') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_department') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Faculty</strong></td>
+                        <td><code>FACULTY1143</code></td>
+                        <td><span class="id-tag">FID</span></td>
+                        <td><strong>{{ stats.TOTAL_FACULTY or 0 }}</strong></td>
+                        <td>References <code>DEPARTMENT1143 (DEPT_ID)</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('faculty') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_faculty') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Students</strong></td>
+                        <td><code>STUDENT1143</code></td>
+                        <td><span class="id-tag">SID</span></td>
+                        <td><strong>{{ stats.TOTAL_STUDENTS or 0 }}</strong></td>
+                        <td>References <code>DEPARTMENT1143 (DEPT_ID)</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('students') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_student') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Courses</strong></td>
+                        <td><code>COURSE1143</code></td>
+                        <td><span class="id-tag">COURSE_ID</span></td>
+                        <td><strong>{{ stats.TOTAL_COURSES or 0 }}</strong></td>
+                        <td>References <code>DEPT_ID</code>, <code>FID</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('courses') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_course') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Classrooms</strong></td>
+                        <td><code>CLASSROOM1143</code></td>
+                        <td><span class="id-tag">ROOM_NO</span></td>
+                        <td><strong>{{ stats.TOTAL_CLASSROOMS or 0 }}</strong></td>
+                        <td>References <code>DEPARTMENT1143 (DEPT_ID)</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('classrooms') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_classroom') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Examinations</strong></td>
+                        <td><code>EXAM1143</code></td>
+                        <td><span class="id-tag">EXAM_ID</span></td>
+                        <td><strong>{{ stats.TOTAL_EXAMS or 0 }}</strong></td>
+                        <td>References <code>COURSE_ID</code>, <code>ROOM_NO</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('examinations') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_examination') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Results</strong></td>
+                        <td><code>RESULT1143</code></td>
+                        <td><span class="id-tag">RESULT_ID</span></td>
+                        <td><strong>{{ stats.TOTAL_RESULTS or 0 }}</strong></td>
+                        <td>References <code>SID</code>, <code>EXAM_ID</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('results') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_result') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Library</strong></td>
+                        <td><code>LIBRARY1143</code></td>
+                        <td><span class="id-tag">BOOK_ID</span></td>
+                        <td><strong>{{ stats.TOTAL_BOOKS or 0 }}</strong></td>
+                        <td>References <code>UNIVERSITY1143 (UNID)</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('library') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_library') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td><strong>Hostel</strong></td>
+                        <td><code>HOSTEL1143</code></td>
+                        <td><span class="id-tag">HOSTEL_ID</span></td>
+                        <td><strong>{{ stats.TOTAL_HOSTELS or 0 }}</strong></td>
+                        <td>References <code>UNIVERSITY1143 (UNID)</code></td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="{{ url_for('hostel') }}" class="btn-table-action">View Records</a>
+                                <a href="{{ url_for('add_hostel') }}" class="btn-table-action" style="background-color: var(--blue-soft); color: var(--blue-primary); border-color: var(--blue-border);">+ Add</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Chart.js 4.4.2 via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Check if Chart.js loaded successfully
+    if (typeof Chart === 'undefined') {
+        console.warn("Chart.js failed to load. Visual charts could not be initialized.");
+        return;
+    }
+
+    // Parse analytics payload passed safely from Flask
+    const analytics = {{ chart_data_json|safe }};
+
+    // Global Chart.js styling options matching dashboard typography & colors
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = "#64748b";
+    Chart.defaults.plugins.tooltip.backgroundColor = "#0f172a";
+    Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 12 };
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 6;
+
+    // Helper: truncate long department labels on x-axis
+    function truncateLabel(str, maxLen = 14) {
+        if (!str) return '';
+        return str.length > maxLen ? str.slice(0, maxLen) + '…' : str;
+    }
+
+    // =========================================================================
+    // 1. Chart: Students by Department
+    // =========================================================================
+    const studentsDeptEl = document.getElementById('chartStudentsDept');
+    if (studentsDeptEl && analytics.students_by_dept && analytics.students_by_dept.length > 0) {
+        const labels = analytics.students_by_dept.map(item => item.LABEL);
+        const data = analytics.students_by_dept.map(item => item.VAL);
+
+        new Chart(studentsDeptEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Students Enrolled',
+                    data: data,
+                    backgroundColor: 'rgba(37, 99, 235, 0.82)',
+                    borderColor: '#1d4ed8',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    hoverBackgroundColor: '#2563eb'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ` ${ctx.parsed.y} Enrolled Students`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            callback: function (val, idx) {
+                                return truncateLabel(labels[idx]);
+                            },
+                            maxRotation: 45,
+                            minRotation: 25
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.7)' },
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================================
+    // 2. Chart: Faculty & Courses by Department (Grouped Bar Chart)
+    // =========================================================================
+    const facultyCoursesEl = document.getElementById('chartFacultyCourses');
+    if (facultyCoursesEl && analytics.faculty_by_dept && analytics.faculty_by_dept.length > 0) {
+        // Collect unified department labels
+        const deptLabels = analytics.faculty_by_dept.map(item => item.LABEL);
+        const facultyMap = {};
+        analytics.faculty_by_dept.forEach(item => { facultyMap[item.LABEL] = item.VAL; });
+
+        const coursesMap = {};
+        (analytics.courses_by_dept || []).forEach(item => { coursesMap[item.LABEL] = item.VAL; });
+
+        const facultyData = deptLabels.map(l => facultyMap[l] || 0);
+        const coursesData = deptLabels.map(l => coursesMap[l] || 0);
+
+        new Chart(facultyCoursesEl, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [
+                    {
+                        label: 'Faculty Members',
+                        data: facultyData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Courses Offered',
+                        data: coursesData,
+                        backgroundColor: 'rgba(14, 165, 233, 0.82)',
+                        borderColor: '#0284c7',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, font: { weight: '600' } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            callback: function (val, idx) {
+                                return truncateLabel(deptLabels[idx]);
+                            },
+                            maxRotation: 45,
+                            minRotation: 25
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.7)' },
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================================
+    // 3. Chart: Result Grade Distribution (Doughnut Chart)
+    // =========================================================================
+    const gradeDistEl = document.getElementById('chartGradeDist');
+    if (gradeDistEl && analytics.grade_distribution && analytics.grade_distribution.length > 0) {
+        const gradeColors = {
+            'S': '#4f46e5',
+            'A': '#10b981',
+            'B': '#0284c7',
+            'C': '#f59e0b',
+            'D': '#ea580c',
+            'E': '#e11d48',
+            'F': '#64748b'
+        };
+
+        const labels = analytics.grade_distribution.map(item => `Grade ${item.LABEL}`);
+        const data = analytics.grade_distribution.map(item => item.VAL);
+        const bgColors = analytics.grade_distribution.map(item => gradeColors[item.LABEL] || '#94a3b8');
+        const totalGrades = data.reduce((a, b) => a + b, 0);
+
+        new Chart(gradeDistEl, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: bgColors,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '66%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const val = ctx.parsed;
+                                const pct = totalGrades > 0 ? ((val / totalGrades) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}: ${val} results (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================================
+    // 4. Chart: Examination Counts by Course (Horizontal Bar Chart)
+    // =========================================================================
+    const examsCourseEl = document.getElementById('chartExamsCourse');
+    if (examsCourseEl && analytics.exams_by_course && analytics.exams_by_course.length > 0) {
+        const labels = analytics.exams_by_course.map(item => item.LABEL);
+        const data = analytics.exams_by_course.map(item => item.VAL);
+
+        new Chart(examsCourseEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Exams Scheduled',
+                    data: data,
+                    backgroundColor: 'rgba(16, 185, 129, 0.82)',
+                    borderColor: '#059669',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ` ${ctx.parsed.x} Examinations`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.7)' },
+                        ticks: { precision: 0 }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: {
+                            callback: function (val, idx) {
+                                return truncateLabel(labels[idx], 18);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================================
+    // 5. Chart: University-wise Department Count
+    // =========================================================================
+    const deptUniEl = document.getElementById('chartDeptUni');
+    if (deptUniEl && analytics.dept_by_university && analytics.dept_by_university.length > 0) {
+        const labels = analytics.dept_by_university.map(item => item.LABEL);
+        const data = analytics.dept_by_university.map(item => item.VAL);
+
+        new Chart(deptUniEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Academic Departments',
+                    data: data,
+                    backgroundColor: 'rgba(139, 92, 246, 0.82)',
+                    borderColor: '#7c3aed',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ` ${ctx.parsed.y} Departments`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            callback: function (val, idx) {
+                                return truncateLabel(labels[idx], 16);
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.7)' },
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================================
+    // 6. Chart: Hostel Bed Capacity by University (Horizontal Bar Chart)
+    // =========================================================================
+    const hostelUniEl = document.getElementById('chartHostelUni');
+    if (hostelUniEl && analytics.hostel_by_university && analytics.hostel_by_university.length > 0) {
+        const labels = analytics.hostel_by_university.map(item => item.LABEL);
+        const data = analytics.hostel_by_university.map(item => item.VAL);
+
+        new Chart(hostelUniEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Resident Beds',
+                    data: data,
+                    backgroundColor: 'rgba(6, 182, 212, 0.82)',
+                    borderColor: '#0891b2',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ` ${ctx.parsed.x} Student Beds`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.7)' },
+                        ticks: { precision: 0 }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: {
+                            callback: function (val, idx) {
+                                return truncateLabel(labels[idx], 18);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

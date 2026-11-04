@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Examinations - University Management System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Main Top Header -->
+    <header class="main-header">
+        <div class="header-titles">
+            <h1 class="page-title">Examination Schedules</h1>
+            <p class="page-subtitle">Scheduled semester assessments, exam timetables, and classroom assignments</p>
+        </div>
+
+        <!-- Compact Search & Filter Form (GET) -->
+        <div class="header-search">
+            <form action="{{ url_for('examinations') }}" method="GET" class="search-form" id="exam-search-form" role="search">
+                <div class="search-input-box">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        id="search-input" 
+                        value="{{ search_query }}" 
+                        placeholder="Search exam, course, room..." 
+                        autocomplete="off"
+                        aria-label="Search by exam ID, title, course, or room"
+                    >
+                    {% if search_query %}
+                    <a href="{{ clear_search_url }}" class="search-clear-btn" id="btn-clear-search" title="Clear search text" aria-label="Clear search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <select name="course_id" class="filter-select" id="filter-course" aria-label="Filter by course">
+                    <option value="">All Courses</option>
+                    {% for c in filter_options.courses %}
+                    <option value="{{ c.COURSE_ID }}" {% if selected_filters.course_id == (c.COURSE_ID|string) %}selected{% endif %}>
+                        {{ c.COURSE_NAME }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="exam_date" class="filter-select" id="filter-date" aria-label="Filter by date">
+                    <option value="">All Exam Dates</option>
+                    {% for ed in filter_options.exam_dates %}
+                    <option value="{{ ed }}" {% if selected_filters.exam_date == ed %}selected{% endif %}>
+                        {{ ed }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="btn btn-search" id="btn-search">Search</button>
+            </form>
+            <a href="{{ url_for('add_examination') }}" class="btn btn-primary btn-add-record" id="btn-add-examination">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add Examination</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Database Connection / Query Notice -->
+    {% if error_message %}
+    <div class="alert-banner alert-warning" role="alert" id="db-notice">
+        <div class="alert-icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="alert-body">
+            <h4 class="alert-title">Database Notification</h4>
+            <p class="alert-message">{{ error_message }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 3 Summary Cards -->
+    <section class="summary-cards-grid" aria-label="Database Summary Metrics">
+        <!-- 1. Total Examinations -->
+        <div class="summary-card" id="card-total-exams">
+            <div class="card-icon blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Total Exams</span>
+                <span class="card-value">{{ stats.TOTAL_EXAMS or 0 }}</span>
+                <span class="card-subtext">Table: EXAM1143</span>
+            </div>
+        </div>
+
+        <!-- 2. Active Courses -->
+        <div class="summary-card" id="card-active-courses">
+            <div class="card-icon indigo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Exam Courses</span>
+                <span class="card-value">{{ stats.ACTIVE_COURSES or 0 }}</span>
+                <span class="card-subtext">Tested Disciplines</span>
+            </div>
+        </div>
+
+        <!-- 3. Matching Records -->
+        <div class="summary-card" id="card-matching-records">
+            <div class="card-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Matching Records</span>
+                <span class="card-value">{{ records|length }}</span>
+                <span class="card-subtext">
+                    {% if active_filters and active_filters|length > 0 %}
+                    Filtered by {{ active_filters|length }} criteria
+                    {% else %}
+                    All current records
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examinations Table Card -->
+    <section class="table-section-card" aria-label="Examinations Table">
+        <div class="table-section-header">
+            <div class="table-title-group">
+                <h2 class="table-title">Scheduled Exams</h2>
+                <span class="record-count-badge">
+                    Showing {{ records|length }} record{% if records|length != 1 %}s{% endif %}
+                </span>
+            </div>
+            {% if active_filters and active_filters|length > 0 %}
+            <div class="active-filters-container">
+                <span class="active-filters-title">Active Filters:</span>
+                <div class="active-filter-chips">
+                    {% for af in active_filters %}
+                    <span class="filter-chip" id="chip-{{ af.id }}">
+                        <span class="filter-chip-label">{{ af.label }}</span>
+                        <a href="{{ af.remove_url }}" class="filter-chip-remove" title="Remove this filter" aria-label="Remove {{ af.label }}">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </a>
+                    </span>
+                    {% endfor %}
+                    <a href="{{ reset_url }}" class="btn-reset-all" id="btn-reset-all">Reset All</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if records and records|length > 0 %}
+        <div class="table-container">
+            <table class="students-table" id="exams-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="th-sid">Exam ID</th>
+                        <th scope="col" class="th-name">Examination Title</th>
+                        <th scope="col" class="th-dob">Exam Date</th>
+                        <th scope="col" class="th-dept">Subject / Course</th>
+                        <th scope="col">Exam Hall</th>
+                        <th scope="col" class="th-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in records %}
+                    <tr class="table-row">
+                        <td class="td-sid">
+                            <span class="id-tag">{{ e.EXAM_ID }}</span>
+                        </td>
+                        <td class="td-name">
+                            <div class="name-text">{{ e.EXAM_NAME }}</div>
+                        </td>
+                        <td class="td-dob">
+                            <span class="date-text">{{ e.EXAM_DATE }}</span>
+                        </td>
+                        <td class="td-dept">
+                            <div class="dept-badge-group">
+                                <span class="dept-name">{{ e.COURSE_NAME }}</span>
+                                {% if e.COURSE_ID %}
+                                <span class="dept-id-pill">CID: {{ e.COURSE_ID }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="gender-tag gender-male">Hall {{ e.ROOM_NO or 'TBA' }}</span>
+                        </td>
+                        <td class="td-actions">
+                            <div class="table-actions-cell">
+                                <a href="{{ url_for('edit_exam', exam_id=e.EXAM_ID) }}" class="btn-table-action" id="btn-edit-{{ e.EXAM_ID }}" title="Edit Examination">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                    Edit
+                                </a>
+                                <form action="{{ url_for('delete_exam', exam_id=e.EXAM_ID) }}" method="POST" class="inline-delete-form" onsubmit="return confirm('Are you sure you want to delete exam \'{{ e.EXAM_NAME|replace('\'', '\\\'') }}\' (Exam ID: {{ e.EXAM_ID }})? This action cannot be undone.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn-table-action btn-table-action-danger" id="btn-delete-{{ e.EXAM_ID }}" title="Delete Examination">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px;">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="table-empty-state" id="empty-state-view">
+            <div class="empty-icon-circle">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+            </div>
+            <h3 class="empty-title">No examinations found</h3>
+            <p class="empty-description">
+                {% if active_filters and active_filters|length > 0 %}
+                No examination matches your active search and filter criteria. Try adjusting or clearing your filters.
+                {% else %}
+                No examination records are currently available in table <code>EXAM1143</code>.
+                {% endif %}
+            </p>
+            {% if active_filters and active_filters|length > 0 %}
+            <a href="{{ reset_url }}" class="btn btn-secondary" id="btn-reset-empty">Reset Filters & Search</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
